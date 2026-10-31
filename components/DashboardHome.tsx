@@ -32,6 +32,7 @@ interface DashboardHomeProps {
   onSelectRecord: (record: KnowledgeRecord) => void;
   onAskQuery: (query: string) => void;
   onStartVoiceCapture: () => void;
+  onStartVoiceSearch?: () => void;
 }
 
 export default function DashboardHome({
@@ -41,6 +42,7 @@ export default function DashboardHome({
   onSelectRecord,
   onAskQuery,
   onStartVoiceCapture,
+  onStartVoiceSearch,
 }: DashboardHomeProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [promptIndex, setPromptIndex] = useState(0);
@@ -113,7 +115,7 @@ export default function DashboardHome({
             {/* Mic Button: "Tap to speak" */}
             <button
               type="button"
-              onClick={onStartVoiceCapture}
+              onClick={onStartVoiceSearch || onStartVoiceCapture}
               className="flex items-center gap-2 bg-[#224332] hover:bg-[#1B3629] text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition-transform active:scale-95"
             >
               <Mic className="w-3.5 h-3.5" />

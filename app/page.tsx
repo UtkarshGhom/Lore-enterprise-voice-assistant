@@ -45,6 +45,7 @@ export default function App() {
   const [records, setRecords] = useState<KnowledgeRecord[]>(initialKnowledgeRecords);
   const [selectedRecord, setSelectedRecord] = useState<KnowledgeRecord | null>(null);
   const [askQuery, setAskQuery] = useState<string>("");
+  const [autoStartVoice, setAutoStartVoice] = useState<boolean>(false);
 
   // Modals
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
@@ -59,6 +60,13 @@ export default function App() {
 
   const handleAskQuery = (query: string) => {
     setAskQuery(query);
+    setAutoStartVoice(false);
+    setCurrentView("ask");
+  };
+
+  const handleStartVoiceSearch = () => {
+    setAskQuery("");
+    setAutoStartVoice(true);
     setCurrentView("ask");
   };
 
@@ -223,6 +231,7 @@ export default function App() {
               onSelectRecord={handleSelectRecord}
               onAskQuery={handleAskQuery}
               onStartVoiceCapture={handleStartVoiceCapture}
+              onStartVoiceSearch={handleStartVoiceSearch}
             />
           )}
 
@@ -230,6 +239,7 @@ export default function App() {
           {currentView === "ask" && (
             <AskLoreView
               initialQuery={askQuery}
+              autoStartVoice={autoStartVoice}
               records={records}
               onOpenRecord={handleSelectRecord}
               onStartCapture={handleStartVoiceCapture}
