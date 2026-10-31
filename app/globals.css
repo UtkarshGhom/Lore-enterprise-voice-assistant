@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Instrument+Serif:ital@0;1&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #F7F9F6;
+  --foreground: #18231C;
+  --forest-primary: #1E3E2B;
+  --forest-secondary: #2B5540;
+  --sage-light: #E9F1EB;
+  --sage-border: #E2EAE4;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-serif {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.font-instrument {
+  font-family: 'Instrument Serif', Georgia, serif;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D5DFD7;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #BAC9BD;
+}
+
+/* Subtle misty mountain watercolor background for hero banner */
+.misty-mountain-bg {
+  background: linear-gradient(135deg, rgba(235, 243, 237, 0.95) 0%, rgba(246, 250, 247, 0.85) 50%, rgba(228, 238, 231, 0.9) 100%),
+              url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+}
+
+/* Audio wave animation */
+@keyframes soundwave {
+  0%, 100% { height: 8px; }
+  50% { height: 28px; }
+}
+
+.animate-wave-1 { animation: soundwave 1.2s ease-in-out infinite 0.1s; }
+.animate-wave-2 { animation: soundwave 1.2s ease-in-out infinite 0.3s; }
+.animate-wave-3 { animation: soundwave 1.2s ease-in-out infinite 0.2s; }
+.animate-wave-4 { animation: soundwave 1.2s ease-in-out infinite 0.4s; }
+.animate-wave-5 { animation: soundwave 1.2s ease-in-out infinite 0.15s; }
