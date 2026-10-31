@@ -113,16 +113,16 @@ export default function PublicWebsite({
         <div className="text-center max-w-4xl mx-auto space-y-6 pt-6">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#E8F0EA] border border-[#D3E1D7] text-xs font-semibold text-[#2C573E]">
             <Sparkles className="w-3.5 h-3.5 text-[#306847]" />
-            <span>The Enterprise Organizational Intelligence Workspace</span>
+            <span>The Verified Context Layer for Engineers & Coding Agents</span>
           </div>
 
           <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-normal tracking-tight text-[#14261B] leading-[1.08]">
-            Your Organization&apos;s Memory, <br />
-            <span className="italic font-normal">Always Within Reach.</span>
+            The Verified <span className="italic font-normal">Why</span> Behind <br />
+            Your Code Changes.
           </h1>
 
           <p className="text-base sm:text-lg text-[#556D5E] max-w-2xl mx-auto leading-relaxed">
-            Lore captures tacit expert knowledge through adaptive voice interviews, connects it with context, and makes it accessible through a conversational AI mentor with grounded citations.
+            Lore captures unwritten architectural rationale at the moment of code change. It creates a human-verified decision layer that engineers and AI coding agents can query to never repeat past mistakes.
           </p>
 
           {/* Action CTAs */}
@@ -147,16 +147,16 @@ export default function PublicWebsite({
           {/* Trust points row */}
           <div className="pt-6 flex flex-wrap items-center justify-center gap-6 text-xs text-[#5E7969]">
             <span className="flex items-center gap-1.5">
-              <Mic className="w-4 h-4 text-[#2E6B47]" /> Voice-Powered Capture
+              <Mic className="w-4 h-4 text-[#2E6B47]" /> 3-Min PR Change Debrief
             </span>
             <span className="flex items-center gap-1.5">
-              <Search className="w-4 h-4 text-[#2E6B47]" /> Zero-Hallucination Search
+              <Search className="w-4 h-4 text-[#2E6B47]" /> Verified Decision Records
             </span>
             <span className="flex items-center gap-1.5">
-              <Users className="w-4 h-4 text-[#2E6B47]" /> Built for Complex Engineering
+              <Users className="w-4 h-4 text-[#2E6B47]" /> Read-Only MCP Agent Endpoint
             </span>
             <span className="flex items-center gap-1.5">
-              <Shield className="w-4 h-4 text-[#2E6B47]" /> Access-Aware & Private
+              <Shield className="w-4 h-4 text-[#2E6B47]" /> Zero-Hallucination Guardrail
             </span>
           </div>
         </div>

@@ -12,12 +12,15 @@ export interface KnowledgeRecord {
   category: "Engineering" | "Operations" | "Robotics" | "Hardware" | "DevOps" | "Product";
   thumbnail: string;
   systemOrProject?: string;
+  linkedPR?: string;
   context?: string;
   decisionOrProcedure?: string;
+  alternativesConsidered?: string[];
   rationale?: string;
   exceptions?: string[];
   risks?: string[];
   applicability?: string;
+  invalidationTriggers?: string[];
   keyInsights?: string[];
   audioDuration?: string;
   transcriptExcerpt?: string;
@@ -51,8 +54,8 @@ export interface KnowledgeGap {
 export const initialKnowledgeRecords: KnowledgeRecord[] = [
   {
     id: "rec-1",
-    title: "Sensor Calibration Procedure",
-    summary: "Step-by-step calibration process with temperature compensation and common troubleshooting steps.",
+    title: "Sensor Calibration Procedure & Drift Mitigation",
+    summary: "Why we abandoned single-point zeroing for a 5-point polynomial temperature compensation protocol.",
     contributor: {
       name: "Rohit Sharma",
       role: "Hardware Engineer",
@@ -62,13 +65,20 @@ export const initialKnowledgeRecords: KnowledgeRecord[] = [
     status: "verified",
     category: "Hardware",
     thumbnail: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=500&q=80",
-    systemOrProject: "Industrial Robotics Field Units",
+    systemOrProject: "Industrial Robotics Field Units (Gen-4)",
+    linkedPR: "PR #208 (Merged)",
     context: "Field sensors showed consistent drift exceeding +/- 4% when operating in outdoor environments with ambient temps > 35°C.",
     decisionOrProcedure: "Use multi-point calibration with temperature compensation algorithm instead of baseline single-point zeroing.",
-    rationale: "Single-point zeroing failed to account for thermal expansion and ADC voltage reference drift under variable sunlight.",
+    alternativesConsidered: [
+      "Single-point room temperature calibration (Rejected: fails over 30°C)",
+      "Hardware Peltier thermoelectric cooler (Rejected: adds $140 BOM cost and 12W power draw)",
+      "5-point polynomial compensation curve (Selected: pure software fix)"
+    ],
+    rationale: "Single-point zeroing failed to account for thermal expansion and ADC voltage reference drift under variable sunlight. Polynomial calibration neutralizes thermal drift in software.",
     exceptions: ["Does not apply to indoor cleanroom sensors running under constant 21°C climate control."],
     risks: ["Skipping step 4 (thermal soak period) leads to calibration offset error."],
     applicability: "Applies to rev 3.2 PCB hardware and above using the Bosch BNO085 IMU.",
+    invalidationTriggers: ["Migration to digital I2C bus sensors with integrated temperature compensation in Rev 4."],
     keyInsights: [
       "Previous single-point calibration caused drift under high temperature (>35°C).",
       "New multi-point calibration improves accuracy by ~32% in outdoor field trials.",
@@ -80,8 +90,8 @@ export const initialKnowledgeRecords: KnowledgeRecord[] = [
   },
   {
     id: "rec-2",
-    title: "Billing Architecture Decision",
-    summary: "Why we moved to a separate retry mechanism and idempotency keys across all payment processors.",
+    title: "Billing Idempotency Keys Architecture",
+    summary: "Why we moved to deterministic idempotency keys across all payment processors to prevent duplicate charges.",
     contributor: {
       name: "Ananya Kulkarni",
       role: "Backend Engineer",
@@ -92,12 +102,19 @@ export const initialKnowledgeRecords: KnowledgeRecord[] = [
     category: "Engineering",
     thumbnail: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=500&q=80",
     systemOrProject: "Core Billing & Stripe Gateway",
+    linkedPR: "PR #142 (Merged)",
     context: "Network timeouts between the client and Stripe resulted in duplicate payment charges when users tapped retry.",
     decisionOrProcedure: "Enforce a deterministic UUIDv5 idempotency key based on user_id, order_id, and attempt_window.",
-    rationale: "Stripe and Razorpay gateways natively deduplicate transactions matching identical idempotency headers within a 24-hour window.",
+    alternativesConsidered: [
+      "Random client-generated UUIDv4 (Rejected: client generates new key on re-render)",
+      "Database row locks during checkout (Rejected: caused connection exhaustion during peak traffic)",
+      "Deterministic UUIDv5 with 24-hr sliding window (Selected: safe, scalable, zero double-charges)"
+    ],
+    rationale: "Stripe and payment gateways natively deduplicate transactions matching identical idempotency headers within a 24-hour window.",
     exceptions: ["Free tier quota claims do not use gateway idempotency keys."],
     risks: ["Re-generating keys on client retries completely defeats the protection."],
     applicability: "All billing API v2 endpoints and webhook consumers.",
+    invalidationTriggers: ["Switching away from Stripe idempotency protocol or multi-region synchronous billing."],
     keyInsights: [
       "Duplicate payments dropped to zero following deployment of deterministic keys.",
       "Idempotency keys must be persisted before outbound network calls, not after.",
@@ -108,7 +125,7 @@ export const initialKnowledgeRecords: KnowledgeRecord[] = [
   },
   {
     id: "rec-3",
-    title: "Production Deployment Guide",
+    title: "Production Deployment Zero-Downtime Guide",
     summary: "Complete deployment process for production zero-downtime releases and emergency canary rollbacks.",
     contributor: {
       name: "Karan Mehta",
@@ -120,12 +137,19 @@ export const initialKnowledgeRecords: KnowledgeRecord[] = [
     category: "DevOps",
     thumbnail: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=500&q=80",
     systemOrProject: "Kubernetes ArgoCD Infrastructure",
+    linkedPR: "PR #389 (Merged)",
     context: "Past microservice migrations caused 4-minute API blips due to non-graceful SIGTERM handling.",
     decisionOrProcedure: "Implement 30s preStop hook with readiness probe grace period before ArgoCD swaps traffic.",
+    alternativesConsidered: [
+      "RollingUpdate default 25% maxUnavailable (Rejected: pods shut down before TCP drain)",
+      "Custom DNS failover (Rejected: TTL propagation delay is too high)",
+      "PreStop sleep 30s + Readiness probe tuning (Selected: zero dropped TCP packets)"
+    ],
     rationale: "Ensures in-flight connections finish processing before the pod container receives termination signal.",
     exceptions: ["Stateless workers (batch jobs) can shut down immediately."],
     risks: ["Database connection pools must be closed gracefully to avoid leaking Postgres connections."],
     applicability: "Cluster k8s-prod-us-east-1 and staging mirrors.",
+    invalidationTriggers: ["Migration to service mesh (Istio/Linkerd) native traffic shifting."],
     keyInsights: [
       "Always inspect ArgoCD sync status and check Datadog APM 5xx error rate for 5 minutes during canary 10% rollout.",
       "Automated rollback triggers if error budget consumption exceeds 0.5% in 3 minutes."
@@ -135,7 +159,7 @@ export const initialKnowledgeRecords: KnowledgeRecord[] = [
   },
   {
     id: "rec-4",
-    title: "Motor Controller Redesign",
+    title: "Motor Controller GaN Redesign",
     summary: "Reasoning behind the controller change and lessons learned from thermal dissipation tests.",
     contributor: {
       name: "Priya Desai",
@@ -147,12 +171,19 @@ export const initialKnowledgeRecords: KnowledgeRecord[] = [
     category: "Robotics",
     thumbnail: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=500&q=80",
     systemOrProject: "Arm Actuator Joint 2 & 3",
+    linkedPR: "PR #112 (Merged)",
     context: "Brushless DC drivers suffered thermal throttling during continuous pick-and-place cycles exceeding 25kg payload.",
     decisionOrProcedure: "Upgraded from discrete MOSFETs to integrated gallium nitride (GaN) power stages with custom copper heatsinks.",
+    alternativesConsidered: [
+      "Larger high-RPM cooling fans (Rejected: acoustic noise violated client hospital noise limits)",
+      "Bigger discrete silicon MOSFETs (Rejected: board size limit exceeded)",
+      "Integrated GaN power stages (Selected: ultra-low switching loss, fits board size)"
+    ],
     rationale: "GaN switches have drastically lower RDS(on) and switching losses, keeping die temperature under 68°C under continuous 30A load.",
     exceptions: ["Low-torque gripper motors still utilize the legacy driver board."],
     risks: ["GaN gates require strict 6V limit; overvoltage instantly damages the driver."],
     applicability: "All Gen-4 robotic arms produced after Q3 2026.",
+    invalidationTriggers: ["Release of monolithic brushless integrated drives."],
     keyInsights: [
       "Thermal margin increased by 24°C under heavy cyclical load.",
       "Firmware PWM frequency was tuned from 20kHz to 40kHz for silent operation and ripple reduction."
@@ -162,7 +193,7 @@ export const initialKnowledgeRecords: KnowledgeRecord[] = [
   },
   {
     id: "rec-5",
-    title: "Common Hardware Failures",
+    title: "Common Hardware Diagnostic Flowchart",
     summary: "List of common issues and troubleshooting steps for field technicians during first-line maintenance.",
     contributor: {
       name: "Aayush Patil",
@@ -174,12 +205,18 @@ export const initialKnowledgeRecords: KnowledgeRecord[] = [
     category: "Operations",
     thumbnail: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=500&q=80",
     systemOrProject: "Field Support Toolkit",
+    linkedPR: "PR #094 (Draft)",
     context: "Field technicians were replacing entire gearbox assemblies for simple harmonic drive lubrication dry-outs.",
     decisionOrProcedure: "Created a diagnostic acoustic flow-chart to differentiate bearing wear from gear backlash.",
+    alternativesConsidered: [
+      "Default factory RMA for all noisy joints (Rejected: costs $4,200 per false replacement)",
+      "On-site grease replenishment protocol (Selected: resolves 80% of issues in 20 minutes)"
+    ],
     rationale: "Reduces warranty replacement cost by $4,200 per false assembly return.",
     exceptions: ["If metal shavings are visible in the drain plug, immediate full replacement is required."],
     risks: ["Technicians must lock out high-voltage bus before opening the service port."],
     applicability: "Field operations globally.",
+    invalidationTriggers: ["Adoption of sealed hermetic lifetime-lubricated reducers."],
     keyInsights: [
       "80% of reported 'motor grind' was actually dry synthetic grease in harmonic reducer gearboxes.",
       "Re-greasing using Mobilgrease 28 resolves the issue in under 20 minutes without factory RMA."
@@ -193,7 +230,7 @@ export const expertContributors: Contributor[] = [
   {
     id: "c-1",
     name: "Rohit Sharma",
-    role: "Hardware Engineer",
+    role: "Hardware Engineering Lead",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
     tags: ["Sensors", "Calibration", "Field Ops"],
     contributionsCount: 12,
@@ -201,7 +238,7 @@ export const expertContributors: Contributor[] = [
   {
     id: "c-2",
     name: "Ananya Kulkarni",
-    role: "Backend Engineer",
+    role: "Backend Architect",
     avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80",
     tags: ["Architecture", "Billing", "PostgreSQL"],
     contributionsCount: 8,

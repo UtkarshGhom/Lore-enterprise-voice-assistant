@@ -28,8 +28,9 @@ export default function CaptureView({
   onCancel,
 }: CaptureViewProps) {
   const [captureMethod, setCaptureMethod] = useState<
-    "voice" | "document" | "meeting" | "screen"
-  >("voice");
+    "pr_debrief" | "voice" | "document" | "meeting" | "screen"
+  >("pr_debrief");
+  const [selectedPR, setSelectedPR] = useState("PR #208");
   const [isRecording, setIsRecording] = useState(true);
   const [seconds, setSeconds] = useState(754); // 12:34
   const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
@@ -129,9 +130,10 @@ export default function CaptureView({
         </button>
       </div>
 
-      {/* Modal / Method Selector Tabs matching Screen 6 */}
-      <div className="flex items-center gap-2 border-b border-[#E2EBE4] pb-2">
+      {/* Modal / Method Selector Tabs matching v2.0 Strategy */}
+      <div className="flex items-center gap-2 border-b border-[#E2EBE4] pb-2 overflow-x-auto">
         {[
+          { id: "pr_debrief", label: "PR Change Debrief (New)", icon: FileText },
           { id: "voice", label: "Voice Interview", icon: Mic },
           { id: "document", label: "Document Upload", icon: Upload },
           { id: "meeting", label: "Meeting Capture", icon: Video },
@@ -143,7 +145,7 @@ export default function CaptureView({
             <button
               key={tab.id}
               onClick={() => setCaptureMethod(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 isActive
                   ? "bg-[#224332] text-white shadow-2xs"
                   : "bg-white text-[#526D5D] hover:bg-[#EEF4EF] border border-[#D9E4DC]"
@@ -155,6 +157,108 @@ export default function CaptureView({
           );
         })}
       </div>
+
+      {/* View 0: PR Change Debrief (Core Strategy v2.0 Wedge) */}
+      {captureMethod === "pr_debrief" && (
+        <div className="bg-white rounded-3xl border border-[#DDE5DF] shadow-card p-8 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#EEF3EF]">
+            <div>
+              <span className="text-[10px] font-semibold text-[#2D5840] uppercase tracking-wider block">
+                Engineering Change Debrief
+              </span>
+              <h3 className="font-serif text-xl font-bold text-[#18261E] mt-0.5">
+                Capture the &ldquo;Why&rdquo; Behind the Code
+              </h3>
+              <p className="text-xs text-[#6B8073]">
+                Prompted automatically when a qualifying PR touches designated critical services.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-[#526F5E] font-medium">Select PR:</span>
+              <select
+                value={selectedPR}
+                onChange={(e) => setSelectedPR(e.target.value)}
+                className="bg-[#F8FAF8] border border-[#D5E1D8] text-xs font-mono font-semibold text-[#18261E] px-3 py-1.5 rounded-xl focus:outline-none"
+              >
+                <option value="PR #208">PR #208: Add BNO085 Polynomial Temperature Compensation</option>
+                <option value="PR #142">PR #142: Migrate Payment Retries to Deterministic UUIDv5</option>
+                <option value="PR #389">PR #389: Graceful SIGTERM & ArgoCD Canary Hooks</option>
+              </select>
+            </div>
+          </div>
+
+          {/* 3 Guided Questions for Authors */}
+          <div className="space-y-4">
+            <div className="p-4 rounded-2xl bg-[#F8FAF8] border border-[#DEE7E0] space-y-2">
+              <span className="text-[10px] font-semibold text-[#2E5840] uppercase tracking-wider block">
+                1. Context & Rationale
+              </span>
+              <p className="text-xs font-semibold text-[#18261E]">
+                Why was this specific approach chosen instead of the standard library or default framework behavior?
+              </p>
+              <textarea
+                defaultValue="Default single-point calibration fails in outdoor ambient heat >35°C due to ADC reference voltage drift. The 5-point polynomial curve eliminates 32% of field yaw errors without hardware Peltier chillers."
+                rows={2}
+                className="w-full text-xs text-[#355342] bg-white p-2.5 rounded-xl border border-[#D5E1D8] focus:outline-none focus:border-[#224332]"
+              />
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#F8FAF8] border border-[#DEE7E0] space-y-2">
+              <span className="text-[10px] font-semibold text-[#2E5840] uppercase tracking-wider block">
+                2. Alternatives Considered
+              </span>
+              <p className="text-xs font-semibold text-[#18261E]">
+                What alternative solutions did you evaluate, and why were they rejected?
+              </p>
+              <textarea
+                defaultValue="Evaluated hardware Peltier thermoelectric cooler (rejected: adds $140 BOM cost and 12W power draw). Evaluated periodic runtime zeroing (rejected: caused position stutter during arm moves)."
+                rows={2}
+                className="w-full text-xs text-[#355342] bg-white p-2.5 rounded-xl border border-[#D5E1D8] focus:outline-none focus:border-[#224332]"
+              />
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#F8FAF8] border border-[#DEE7E0] space-y-2">
+              <span className="text-[10px] font-semibold text-[#2E5840] uppercase tracking-wider block">
+                3. Known Invalidation Conditions & Failure Modes
+              </span>
+              <p className="text-xs font-semibold text-[#18261E]">
+                Under what conditions does this advice break, or when should another engineer rewrite this?
+              </p>
+              <textarea
+                defaultValue="Does not apply to indoor cleanroom units operating under continuous 21°C climate control. This logic is superseded if hardware rev 4 switches to digital I2C bus sensors with internal thermistors."
+                rows={2}
+                className="w-full text-xs text-[#355342] bg-white p-2.5 rounded-xl border border-[#D5E1D8] focus:outline-none focus:border-[#224332]"
+              />
+            </div>
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs text-[#6B8576]">
+              <Sparkles className="w-4 h-4 text-[#2E7D52]" />
+              <span>Self-approval enabled: record will be indexed to Lore and exposed to Coding Agents via MCP.</span>
+            </div>
+
+            <button
+              onClick={handleEndInterview}
+              disabled={isExtracting}
+              className="px-6 py-3 rounded-2xl bg-[#224332] hover:bg-[#1B3629] text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-2"
+            >
+              {isExtracting ? (
+                <>
+                  <Sparkles className="w-4 h-4 animate-spin text-[#A7F3D0]" />
+                  <span>Indexing Verified Decision...</span>
+                </>
+              ) : (
+                <>
+                  <span>Approve & Publish Decision Record</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* View 1: Voice Interview Studio (Screen 6) */}
       {captureMethod === "voice" && (

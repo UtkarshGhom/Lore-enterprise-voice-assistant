@@ -162,19 +162,19 @@ export default function KnowledgeDetailView({
 
           <div>
             <span className="text-[10px] font-semibold text-[#7E9689] uppercase tracking-wider block">
-              Captured On
+              Linked Change / PR
             </span>
-            <span className="font-semibold text-[#18261E] mt-1 block">
-              {record.date}
+            <span className="font-semibold text-[#18261E] mt-1 block font-mono text-xs">
+              {record.linkedPR || "PR #208 (Merged)"}
             </span>
           </div>
 
           <div>
             <span className="text-[10px] font-semibold text-[#7E9689] uppercase tracking-wider block">
-              Topics
+              Applicable System
             </span>
-            <span className="font-semibold text-[#18261E] mt-1 block">
-              {record.category}, Calibration, Sensors
+            <span className="font-semibold text-[#18261E] mt-1 block truncate">
+              {record.systemOrProject || "Core Platform"}
             </span>
           </div>
 
@@ -187,10 +187,33 @@ export default function KnowledgeDetailView({
                 isApproved ? "text-[#1E7445]" : "text-[#C2410C]"
               }`}
             >
-              {isApproved ? "✓ Verified" : "⏳ Pending Review"}
+              {isApproved ? "✓ Verified & Active" : "⏳ Pending Review"}
             </span>
           </div>
         </div>
+
+        {/* Alternatives Considered (Differentiator from v2.0 Strategy) */}
+        {record.alternativesConsidered && record.alternativesConsidered.length > 0 && (
+          <div className="p-6 rounded-2xl bg-[#FAFBF9] border border-[#DEECE2] space-y-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#2E5840]" />
+              <h3 className="font-semibold text-xs text-[#203427] uppercase tracking-wider">
+                Alternatives Considered & Evaluated
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 gap-2">
+              {record.alternativesConsidered.map((alt, i) => (
+                <div
+                  key={i}
+                  className="p-3 rounded-xl bg-white border border-[#E2EBE5] text-xs text-[#284032] flex items-start gap-2.5"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#366B50] mt-1.5 shrink-0" />
+                  <span>{alt}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Audio / Video Interview preview card matching Screen 5 */}
         <div className="relative rounded-2xl overflow-hidden border border-[#D5E1D8] group">
