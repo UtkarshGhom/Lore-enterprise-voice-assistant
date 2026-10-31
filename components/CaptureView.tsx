@@ -262,7 +262,70 @@ export default function CaptureView({
 
       {/* View 1: Voice Interview Studio (Screen 6) */}
       {captureMethod === "voice" && (
-        <div className="bg-white rounded-3xl border border-[#DDE5DF] shadow-card overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[500px]">
+        <div className="bg-white rounded-3xl border border-[#DDE5DF] shadow-card overflow-hidden">
+          {/* Pinned Consent & Retention Bar (Polish Guide Section 5.4) */}
+          <div className="bg-[#1C3526] text-white px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#EF4444] animate-ping" />
+              <span className="font-semibold">Recording is active.</span>
+              <span className="text-white/80">You control what is shared. Scrubbed of secrets and purges in 30 days.</span>
+            </div>
+            <div className="flex items-center gap-3 text-[11px]">
+              <button
+                onClick={() => setIsRecording(!isRecording)}
+                className="hover:text-[#A7F3D0] underline font-medium"
+              >
+                {isRecording ? "Pause" : "Resume"}
+              </button>
+              <span>•</span>
+              <button
+                onClick={() => setSeconds(0)}
+                className="hover:text-[#FECACA] underline font-medium"
+              >
+                Restart
+              </button>
+              <span>•</span>
+              <button
+                onClick={onCancel}
+                className="text-[#FCA5A5] hover:text-[#EF4444] font-semibold"
+              >
+                Delete Recording
+              </button>
+            </div>
+          </div>
+
+          {/* Chapter Progress Dots (Polish Guide Section 5.4) */}
+          <div className="bg-[#F2F7F4] border-b border-[#E1ECE3] px-6 py-2 flex items-center justify-between text-xs overflow-x-auto">
+            <span className="text-[10px] uppercase font-bold text-[#4B6B58] tracking-wider shrink-0 mr-4">
+              Debrief Chapters:
+            </span>
+            <div className="flex items-center gap-6">
+              {[
+                { name: "1. Context", active: true },
+                { name: "2. Architectural Why", active: true },
+                { name: "3. Alternatives Rejected", active: false },
+                { name: "4. Risks & Invalidation", active: false },
+                { name: "5. Wrap-up", active: false },
+              ].map((ch, idx) => (
+                <div key={idx} className="flex items-center gap-1.5 whitespace-nowrap">
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      ch.active ? "bg-[#224332]" : "bg-[#CBD9CF]"
+                    }`}
+                  />
+                  <span
+                    className={`text-[11px] ${
+                      ch.active ? "font-semibold text-[#18261E]" : "text-[#71897C]"
+                    }`}
+                  >
+                    {ch.name}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[460px]">
           {/* Left Column: Waveform, Recording Controls & Topic info */}
           <div className="lg:col-span-7 p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[#E2EBE4] bg-gradient-to-b from-[#FAFBF9] to-white">
             <div>
@@ -410,6 +473,7 @@ export default function CaptureView({
                 <span>Capturing decision context and failure exceptions.</span>
               </div>
             </div>
+          </div>
           </div>
         </div>
       )}

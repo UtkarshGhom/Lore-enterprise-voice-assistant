@@ -23,15 +23,21 @@ import PilotKitModal from "@/components/PilotKitModal";
 import PublicWebsite from "@/components/PublicWebsite";
 import CommandPalette from "@/components/CommandPalette";
 import OnboardingModal from "@/components/OnboardingModal";
+import AuthModal, { UserSession, demoUsers } from "@/components/AuthModal";
+import DemoControls from "@/components/DemoControls";
 import { initialKnowledgeRecords, KnowledgeRecord } from "@/lib/data";
 
 export default function App() {
+  // Authentication & Session State (Starts logged in as Lead Architect for hackathon review, with full login/logout flow)
+  const [currentUser, setCurrentUser] = useState<UserSession | null>(demoUsers[0]);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isPublicWebsite, setIsPublicWebsite] = useState(false);
+
+  // Navigation & Data
   const [currentView, setCurrentView] = useState<NavView>("home");
   const [records, setRecords] = useState<KnowledgeRecord[]>(initialKnowledgeRecords);
   const [selectedRecord, setSelectedRecord] = useState<KnowledgeRecord | null>(null);
   const [askQuery, setAskQuery] = useState<string>("");
-  const [activePersona, setActivePersona] = useState<"expert" | "learner" | "manager">("learner");
 
   // Modals
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
@@ -59,9 +65,11 @@ export default function App() {
       title: newRec.title || "Voice Captured Incident",
       summary: newRec.summary || "Structured institutional memory capture.",
       contributor: newRec.contributor || {
-        name: "Rohit Sharma",
-        role: "Hardware Engineer",
-        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+        name: currentUser?.name || "Rohit Sharma",
+        role: currentUser?.role || "Hardware Engineer",
+        avatar:
+          currentUser?.avatar ||
+          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
       },
       date: newRec.date || "Today",
       status: "draft",
@@ -117,22 +125,45 @@ export default function App() {
     }
   };
 
+  const handleLoginSuccess = (user: UserSession) => {
+    setCurrentUser(user);
+    setIsPublicWebsite(false);
+  };
+
+  const handleSignOut = () => {
+    setCurrentUser(null);
+    setIsPublicWebsite(true);
+  };
+
   const pendingReviewCount = records.filter(
     (r) => r.status === "review_due" || r.status === "draft"
   ).length;
 
-  // Render Public Marketing Website if toggled
-  if (isPublicWebsite) {
+  // Render Public Marketing Website if not logged in or toggled
+  if (isPublicWebsite || currentUser === null) {
     return (
       <>
         <PublicWebsite
-          onEnterApp={() => setIsPublicWebsite(false)}
+          onEnterApp={() => {
+            if (!currentUser) setCurrentUser(demoUsers[0]);
+            setIsPublicWebsite(false);
+          }}
           onOpenOnboarding={() => setIsOnboardingOpen(true)}
+          onOpenAuth={() => setIsAuthModalOpen(true)}
+        />
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          onLoginSuccess={handleLoginSuccess}
         />
         <OnboardingModal
           isOpen={isOnboardingOpen}
           onClose={() => setIsOnboardingOpen(false)}
-          onFinish={() => setIsPublicWebsite(false)}
+          onFinish={() => {
+            setIsOnboardingOpen(false);
+            if (!currentUser) setCurrentUser(demoUsers[0]);
+            setIsPublicWebsite(false);
+          }}
         />
       </>
     );
@@ -149,30 +180,27 @@ export default function App() {
           setCurrentView(view);
         }}
         reviewCount={pendingReviewCount}
-        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        currentUser={currentUser}
+        onSignOut={handleSignOut}
         onViewWebsite={() => setIsPublicWebsite(true)}
+        onSwitchPersona={() => setIsAuthModalOpen(true)}
       />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         <Header
-          activePersona={activePersona}
-          onPersonaChange={(p) => {
-            setActivePersona(p);
-            if (p === "expert") setCurrentView("capture");
-            else if (p === "manager") setCurrentView("review");
-            else setCurrentView("home");
-          }}
+          currentUser={currentUser}
           onSearchClick={() => setIsCommandPaletteOpen(true)}
-          onQuickSeed={handleQuickSeed}
           onOpenPilotKit={() => setIsPilotKitOpen(true)}
+          onUserMenuClick={() => setIsAuthModalOpen(true)}
         />
 
-        <main className="flex-1 pb-12">
+        <main className="flex-1 pb-16">
           {/* 1. Personalized Employee Home ("Pick up where you left off" - Screen 4) */}
           {currentView === "home" && (
             <PersonalizedEmployeeHome
               records={records}
+              currentUser={currentUser}
               onSelectRecord={handleSelectRecord}
               onNavigate={(v) => setCurrentView(v as any)}
               onAskQuery={handleAskQuery}
@@ -183,6 +211,7 @@ export default function App() {
           {currentView === "dashboard" && (
             <DashboardHome
               records={records}
+              userName={currentUser?.name?.split(" ")[0] || "Utkarsh"}
               onNavigate={(v) => setCurrentView(v as any)}
               onSelectRecord={handleSelectRecord}
               onAskQuery={handleAskQuery}
@@ -196,6 +225,7 @@ export default function App() {
               initialQuery={askQuery}
               records={records}
               onOpenRecord={handleSelectRecord}
+              onStartCapture={handleStartVoiceCapture}
             />
           )}
 
@@ -283,6 +313,19 @@ export default function App() {
         </main>
       </div>
 
+      {/* Floating Dismissible Demo Controls & Sample Data Banner (Polish Guide Section 2 Item 7 & Section 5.8) */}
+      <DemoControls
+        currentUser={currentUser}
+        onSelectUser={(u) => {
+          setCurrentUser(u);
+          if (u.role === "Software Engineer") setCurrentView("home");
+          else if (u.role === "Lead Architect") setCurrentView("capture");
+          else if (u.role === "VP of Engineering") setCurrentView("review");
+        }}
+        onResetSeed={handleQuickSeed}
+        onOpenPilotKit={() => setIsPilotKitOpen(true)}
+      />
+
       {/* Global Command Palette Modal (Screen 2) */}
       <CommandPalette
         isOpen={isCommandPaletteOpen}
@@ -304,6 +347,13 @@ export default function App() {
       <PilotKitModal
         isOpen={isPilotKitOpen}
         onClose={() => setIsPilotKitOpen(false)}
+      />
+
+      {/* Auth Modal with Work Email & 1-Click Role Personas */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
       />
     </div>
   );

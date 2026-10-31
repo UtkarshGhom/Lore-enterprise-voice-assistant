@@ -14,9 +14,11 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { KnowledgeRecord } from "@/lib/data";
+import { UserSession } from "./AuthModal";
 
 interface PersonalizedEmployeeHomeProps {
   records: KnowledgeRecord[];
+  currentUser?: UserSession | null;
   onSelectRecord: (record: KnowledgeRecord) => void;
   onNavigate: (view: string) => void;
   onAskQuery: (query: string) => void;
@@ -24,6 +26,7 @@ interface PersonalizedEmployeeHomeProps {
 
 export default function PersonalizedEmployeeHome({
   records,
+  currentUser,
   onSelectRecord,
   onNavigate,
   onAskQuery,
@@ -73,27 +76,27 @@ export default function PersonalizedEmployeeHome({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white rounded-3xl border border-[#DCE5DF] p-8 shadow-card">
         <div className="space-y-1">
           <span className="text-xs font-semibold text-[#305C42] flex items-center gap-1.5">
-            Good morning, Utkarsh <span className="animate-pulse">👋</span>
+            Good morning, {currentUser?.name?.split(" ")[0] || "Utkarsh"} <span className="animate-pulse">👋</span>
           </span>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#18261E]">
             Pick up where you left off
           </h1>
           <p className="text-xs sm:text-sm text-[#668273]">
-            Here are personalized intelligence recommendations for your current sprint.
+            Here are verified engineering decisions and recommendations for your current sprint.
           </p>
         </div>
 
         {/* Team pill badge */}
         <div className="p-4 rounded-2xl bg-[#EAF2ED] border border-[#CFE0D4] flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white text-[#224332] flex items-center justify-center font-serif text-sm font-bold shadow-2xs">
-            RT
+            {currentUser?.team?.substring(0, 2).toUpperCase() || "CP"}
           </div>
           <div>
             <span className="text-[10px] font-semibold text-[#5A7967] uppercase tracking-wider block">
               Active Assignment
             </span>
             <span className="text-sm font-semibold text-[#18261E]">
-              Robotics Team
+              {currentUser?.team || "Core Platform"}
             </span>
           </div>
         </div>

@@ -27,6 +27,7 @@ import { NavView } from "./Sidebar";
 
 interface DashboardHomeProps {
   records: KnowledgeRecord[];
+  userName?: string;
   onNavigate: (view: NavView) => void;
   onSelectRecord: (record: KnowledgeRecord) => void;
   onAskQuery: (query: string) => void;
@@ -35,6 +36,7 @@ interface DashboardHomeProps {
 
 export default function DashboardHome({
   records,
+  userName = "Utkarsh",
   onNavigate,
   onSelectRecord,
   onAskQuery,
@@ -46,8 +48,8 @@ export default function DashboardHome({
   const samplePrompts = [
     "Explain our deployment process",
     "Why did we choose this architecture?",
-    "How to calibrate the sensor?",
-    "What is the rollback procedure?",
+    "Why did we choose Postgres for billing?",
+    "What is the rollback procedure if canary fails?",
     "Why do we use idempotency keys in billing?",
   ];
 
@@ -68,37 +70,29 @@ export default function DashboardHome({
   const expertCount = expertContributors.length; // 6
 
   return (
-    <div className="p-8 space-y-8 max-w-[1440px] mx-auto">
-      {/* 1. Hero Panoramic Banner with Misty Watercolor Landscape */}
+    <div className="p-6 sm:p-8 space-y-6 max-w-[1440px] mx-auto">
+      {/* 1. Hero Panoramic Banner - Tightened proportions (Section 2 Item 12 Polish) */}
       <section className="relative rounded-3xl overflow-hidden border border-[#DCE5DE] shadow-card bg-gradient-to-r from-[#EAF2ED] via-[#F3F7F4] to-[#E5EFE8]">
-        {/* Watercolor overlay styling */}
-        <div className="absolute inset-0 opacity-25 bg-[radial-gradient(#2F5D44_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
-        
-        {/* Script Quote on Right */}
-        <div className="absolute right-8 top-8 hidden lg:block text-right pointer-events-none">
-          <p className="font-serif italic text-sm text-[#4E6B58] opacity-80 select-none">
-            Capture knowledge. <br />
-            Empower tomorrow.
-          </p>
-        </div>
+        {/* Subtle dot grid overlay */}
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#2F5D44_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
 
-        <div className="relative z-10 p-8 sm:p-10 max-w-3xl">
-          <span className="text-xs font-semibold text-[#52725E] tracking-wide flex items-center gap-1.5 mb-2">
-            Good morning, Utkarsh <span className="animate-pulse">👋</span>
+        <div className="relative z-10 p-6 sm:p-8 max-w-3xl">
+          <span className="text-xs font-semibold text-[#52725E] tracking-wide flex items-center gap-1.5 mb-1.5">
+            Good morning, {userName} <span className="animate-pulse">👋</span>
           </span>
 
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-[#162B20] leading-[1.15]">
+          <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-medium tracking-tight text-[#162B20] leading-[1.18]">
             What would you like to understand today?
           </h1>
 
-          <p className="text-sm sm:text-base text-[#577061] mt-2.5 font-normal">
+          <p className="text-xs sm:text-sm text-[#577061] mt-1.5 font-normal">
             Ask Lore anything about your team, projects, systems or past decisions.
           </p>
 
           {/* Interactive Floating Pill Search Box */}
           <form
             onSubmit={handleSearchSubmit}
-            className="mt-6 bg-white rounded-2xl border border-[#D1DDD3] p-2 flex items-center gap-2 shadow-elevated transition-all focus-within:border-[#224332] focus-within:ring-2 focus-within:ring-[#224332]/10"
+            className="mt-5 bg-white rounded-2xl border border-[#D1DDD3] p-1.5 sm:p-2 flex items-center gap-2 shadow-elevated transition-all focus-within:border-[#224332] focus-within:ring-2 focus-within:ring-[#224332]/10"
           >
             {/* Ask Lore Dropdown pill */}
             <div className="flex items-center gap-1 px-3 py-1.5 bg-[#F2F6F3] rounded-xl text-xs font-semibold text-[#244633] cursor-pointer select-none hover:bg-[#E8F0EA] transition-colors">
@@ -112,17 +106,9 @@ export default function DashboardHome({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Ask a question or press the mic to talk..."
-              className="flex-1 bg-transparent px-2 py-1 text-sm text-[#18261E] placeholder-[#809989] focus:outline-none"
+              placeholder="Ask why something works the way it does..."
+              className="flex-1 bg-transparent px-2 py-1 text-xs sm:text-sm text-[#18261E] placeholder-[#809989] focus:outline-none"
             />
-
-            {/* Soundwave animation indicator */}
-            <div className="hidden sm:flex items-center gap-0.5 px-2">
-              <div className="w-1 h-3 bg-[#386E51] rounded-full animate-wave-1 opacity-70" />
-              <div className="w-1 h-5 bg-[#386E51] rounded-full animate-wave-2 opacity-90" />
-              <div className="w-1 h-4 bg-[#386E51] rounded-full animate-wave-3 opacity-80" />
-              <div className="w-1 h-2 bg-[#386E51] rounded-full animate-wave-4 opacity-60" />
-            </div>
 
             {/* Mic Button: "Tap to speak" */}
             <button
@@ -135,12 +121,12 @@ export default function DashboardHome({
             </button>
           </form>
 
-          {/* Quick Prompts matching Image 2 */}
-          <div className="mt-4 flex flex-wrap items-center gap-2">
+          {/* Quick Prompts - Software Engineering Focused (Section 2 Item 11 Polish) */}
+          <div className="mt-3.5 flex flex-wrap items-center gap-2">
             {[
               "Explain our deployment process",
               "Why did we choose this architecture?",
-              "How to calibrate the sensor?",
+              "Why did we choose Postgres for billing?",
             ].map((prompt, idx) => (
               <button
                 key={idx}
