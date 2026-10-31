@@ -28,10 +28,17 @@ import DemoControls from "@/components/DemoControls";
 import { initialKnowledgeRecords, KnowledgeRecord } from "@/lib/data";
 
 export default function App() {
-  // Authentication & Session State (Starts logged in as Lead Architect for hackathon review, with full login/logout flow)
-  const [currentUser, setCurrentUser] = useState<UserSession | null>(demoUsers[0]);
+  // Authentication & Session State: Default to public landing screen, login to enter workspace
+  const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isPublicWebsite, setIsPublicWebsite] = useState(false);
+  const [isPublicWebsite, setIsPublicWebsite] = useState(true);
+
+  // Clear stray hash in URL on load (Section 2 Item 6 Polish)
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, []);
 
   // Navigation & Data
   const [currentView, setCurrentView] = useState<NavView>("home");
