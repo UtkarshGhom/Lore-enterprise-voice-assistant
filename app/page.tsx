@@ -17,6 +17,9 @@ import CollectionsView from "@/components/CollectionsView";
 import TeamView from "@/components/TeamView";
 import SettingsView from "@/components/SettingsView";
 import EvaluationView from "@/components/EvaluationView";
+import DecisionTimelineView from "@/components/DecisionTimelineView";
+import AuditGovernanceView from "@/components/AuditGovernanceView";
+import PilotKitModal from "@/components/PilotKitModal";
 import PublicWebsite from "@/components/PublicWebsite";
 import CommandPalette from "@/components/CommandPalette";
 import OnboardingModal from "@/components/OnboardingModal";
@@ -33,6 +36,7 @@ export default function App() {
   // Modals
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [isPilotKitOpen, setIsPilotKitOpen] = useState(false);
 
   // Handlers
   const handleSelectRecord = (record: KnowledgeRecord) => {
@@ -161,6 +165,7 @@ export default function App() {
           }}
           onSearchClick={() => setIsCommandPaletteOpen(true)}
           onQuickSeed={handleQuickSeed}
+          onOpenPilotKit={() => setIsPilotKitOpen(true)}
         />
 
         <main className="flex-1 pb-12">
@@ -211,6 +216,11 @@ export default function App() {
             />
           )}
 
+          {/* 5b. Decision History & Freshness Timeline (Strategy Phase 3) */}
+          {currentView === "timeline" && (
+            <DecisionTimelineView onSelectRecord={handleSelectRecord} />
+          )}
+
           {/* 6. Collections (Curated Workspaces - Section 6) */}
           {currentView === "collections" && (
             <CollectionsView
@@ -256,10 +266,13 @@ export default function App() {
           {/* 12. Integrations Marketplace (Screen 11) */}
           {currentView === "integrations" && <IntegrationsView />}
 
-          {/* 12. Settings & Security */}
+          {/* 13. Audit & Governance (Strategy Phase 3/4) */}
+          {currentView === "governance" && <AuditGovernanceView />}
+
+          {/* 14. Settings & Security */}
           {currentView === "settings" && <SettingsView />}
 
-          {/* 13. Knowledge Detail & Review (Screen 5) */}
+          {/* 15. Knowledge Detail & Review (Screen 5) */}
           {currentView === "detail" && selectedRecord && (
             <KnowledgeDetailView
               record={selectedRecord}
@@ -285,6 +298,12 @@ export default function App() {
           setIsOnboardingOpen(false);
           setIsPublicWebsite(false);
         }}
+      />
+
+      {/* Design Partner Pilot Kit Modal (Strategy Phase 0/3) */}
+      <PilotKitModal
+        isOpen={isPilotKitOpen}
+        onClose={() => setIsPilotKitOpen(false)}
       />
     </div>
   );

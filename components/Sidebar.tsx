@@ -19,6 +19,7 @@ import {
   Command,
   Globe,
   ShieldCheck,
+  GitCommit,
 } from "lucide-react";
 
 export type NavView =
@@ -27,6 +28,7 @@ export type NavView =
   | "ask"
   | "capture"
   | "library"
+  | "timeline"
   | "collections"
   | "graph"
   | "review"
@@ -34,6 +36,7 @@ export type NavView =
   | "evals"
   | "team"
   | "integrations"
+  | "governance"
   | "settings"
   | "detail";
 
@@ -65,6 +68,7 @@ export default function Sidebar({
       items: [
         { id: "ask" as NavView, label: "Ask Lore (Mentor)", icon: MessageSquare },
         { id: "library" as NavView, label: "Knowledge Hub", icon: BookOpen },
+        { id: "timeline" as NavView, label: "Decision History", icon: GitCommit },
         { id: "collections" as NavView, label: "Collections", icon: FolderGit2 },
         { id: "graph" as NavView, label: "Knowledge Graph", icon: Share2 },
       ],
@@ -93,6 +97,7 @@ export default function Sidebar({
       group: "Enterprise",
       items: [
         { id: "integrations" as NavView, label: "Integrations", icon: Layers },
+        { id: "governance" as NavView, label: "Audit & Governance", icon: ShieldCheck },
         { id: "settings" as NavView, label: "Settings", icon: Settings },
       ],
     },

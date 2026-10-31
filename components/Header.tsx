@@ -6,6 +6,7 @@ import { Search, Bell, Sparkles, RefreshCw } from "lucide-react";
 interface HeaderProps {
   onSearchClick?: () => void;
   onQuickSeed?: () => void;
+  onOpenPilotKit?: () => void;
   activePersona: "expert" | "learner" | "manager";
   onPersonaChange: (p: "expert" | "learner" | "manager") => void;
 }
@@ -13,6 +14,7 @@ interface HeaderProps {
 export default function Header({
   onSearchClick,
   onQuickSeed,
+  onOpenPilotKit,
   activePersona,
   onPersonaChange,
 }: HeaderProps) {
@@ -55,6 +57,17 @@ export default function Header({
             Team Lead
           </button>
         </div>
+
+        {/* Pilot Kit trigger */}
+        {onOpenPilotKit && (
+          <button
+            onClick={onOpenPilotKit}
+            className="hidden lg:flex items-center gap-1.5 text-xs text-[#1E5C38] bg-[#EAF5EE] hover:bg-[#DCEEE2] px-3 py-1.5 rounded-xl font-semibold border border-[#C6E6D1] transition-all ml-2"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#2E7D52]" />
+            <span>Pilot Kit (Phase 0/3)</span>
+          </button>
+        )}
       </div>
 
       {/* Right controls matching Image 2 */}
