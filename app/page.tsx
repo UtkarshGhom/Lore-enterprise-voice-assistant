@@ -16,6 +16,7 @@ import IntegrationsView from "@/components/IntegrationsView";
 import CollectionsView from "@/components/CollectionsView";
 import TeamView from "@/components/TeamView";
 import SettingsView from "@/components/SettingsView";
+import EvaluationView from "@/components/EvaluationView";
 import PublicWebsite from "@/components/PublicWebsite";
 import CommandPalette from "@/components/CommandPalette";
 import OnboardingModal from "@/components/OnboardingModal";
@@ -249,7 +250,10 @@ export default function App() {
             />
           )}
 
-          {/* 11. Integrations Marketplace (Screen 11) */}
+          {/* 11. Numeric Evaluation Gates & MCP Studio (Strategy v2.0 Section 7.5) */}
+          {currentView === "evals" && <EvaluationView />}
+
+          {/* 12. Integrations Marketplace (Screen 11) */}
           {currentView === "integrations" && <IntegrationsView />}
 
           {/* 12. Settings & Security */}

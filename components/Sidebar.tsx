@@ -18,6 +18,7 @@ import {
   Sparkles,
   Command,
   Globe,
+  ShieldCheck,
 } from "lucide-react";
 
 export type NavView =
@@ -30,6 +31,7 @@ export type NavView =
   | "graph"
   | "review"
   | "gaps"
+  | "evals"
   | "team"
   | "integrations"
   | "settings"
@@ -84,6 +86,7 @@ export default function Sidebar({
           badge: reviewCount,
         },
         { id: "gaps" as NavView, label: "Knowledge Gaps", icon: Lightbulb },
+        { id: "evals" as NavView, label: "Evals & MCP Studio", icon: ShieldCheck },
       ],
     },
     {
