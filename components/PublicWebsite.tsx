@@ -56,8 +56,8 @@ export default function PublicWebsite({
         <div className="flex items-center gap-10">
           {/* Botanical Logo */}
           <div className="flex items-center gap-2.5 cursor-pointer">
-            <div className="w-9 h-9 rounded-xl bg-[#E8F0EA] flex items-center justify-center text-[#1E3E2B]">
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <div className="w-9 h-9 rounded-xl bg-[#E8F0EA] flex items-center justify-center text-[#1E3E2B] shrink-0">
+              <svg className="w-5 h-5 fill-current" style={{ width: "20px", height: "20px", maxWidth: "20px", maxHeight: "20px" }} viewBox="0 0 24 24">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" opacity="0.1"/>
                 <path d="M17 3c-3.87 0-7 3.13-7 7 0 1.63.56 3.13 1.5 4.33C9.64 15.65 8 18.63 8 22h2c0-4.42 3.58-8 8-8 1.63 0 3.13.56 4.33 1.5.86-1.42 1.37-3.08 1.37-4.85 0-4.22-3.48-7.65-6.7-7.65zm0 11c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z" />
               </svg>
