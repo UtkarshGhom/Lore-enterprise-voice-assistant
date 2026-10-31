@@ -4,22 +4,34 @@ import React, { useState } from "react";
 import Sidebar, { NavView } from "@/components/Sidebar";
 import Header from "@/components/Header";
 import DashboardHome from "@/components/DashboardHome";
+import PersonalizedEmployeeHome from "@/components/PersonalizedEmployeeHome";
 import AskLoreView from "@/components/AskLoreView";
 import CaptureView from "@/components/CaptureView";
 import KnowledgeLibraryView from "@/components/KnowledgeLibraryView";
 import KnowledgeDetailView from "@/components/KnowledgeDetailView";
 import ReviewQueueView from "@/components/ReviewQueueView";
 import KnowledgeGapsView from "@/components/KnowledgeGapsView";
+import KnowledgeGraphView from "@/components/KnowledgeGraphView";
+import IntegrationsView from "@/components/IntegrationsView";
+import CollectionsView from "@/components/CollectionsView";
 import TeamView from "@/components/TeamView";
 import SettingsView from "@/components/SettingsView";
-import { initialKnowledgeRecords, KnowledgeRecord, Contributor } from "@/lib/data";
+import PublicWebsite from "@/components/PublicWebsite";
+import CommandPalette from "@/components/CommandPalette";
+import OnboardingModal from "@/components/OnboardingModal";
+import { initialKnowledgeRecords, KnowledgeRecord } from "@/lib/data";
 
 export default function App() {
+  const [isPublicWebsite, setIsPublicWebsite] = useState(false);
   const [currentView, setCurrentView] = useState<NavView>("home");
   const [records, setRecords] = useState<KnowledgeRecord[]>(initialKnowledgeRecords);
   const [selectedRecord, setSelectedRecord] = useState<KnowledgeRecord | null>(null);
   const [askQuery, setAskQuery] = useState<string>("");
   const [activePersona, setActivePersona] = useState<"expert" | "learner" | "manager">("learner");
+
+  // Modals
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
   // Handlers
   const handleSelectRecord = (record: KnowledgeRecord) => {
@@ -82,13 +94,49 @@ export default function App() {
     alert("Workspace seed reset to Northstar Systems baseline.");
   };
 
+  const handlePaletteAction = (type: string, payload?: any) => {
+    setIsCommandPaletteOpen(false);
+    if (type === "navigate_record") {
+      const found = records.find((r) => r.id === payload);
+      if (found) handleSelectRecord(found);
+    } else if (type === "navigate_capture") {
+      setCurrentView("capture");
+    } else if (type === "navigate_review") {
+      setCurrentView("review");
+    } else if (type === "navigate_library") {
+      setCurrentView("library");
+    } else if (type === "navigate_team") {
+      setCurrentView("team");
+    } else if (type === "open_palette") {
+      setIsCommandPaletteOpen(true);
+    }
+  };
+
   const pendingReviewCount = records.filter(
     (r) => r.status === "review_due" || r.status === "draft"
   ).length;
 
+  // Render Public Marketing Website if toggled
+  if (isPublicWebsite) {
+    return (
+      <>
+        <PublicWebsite
+          onEnterApp={() => setIsPublicWebsite(false)}
+          onOpenOnboarding={() => setIsOnboardingOpen(true)}
+        />
+        <OnboardingModal
+          isOpen={isOnboardingOpen}
+          onClose={() => setIsOnboardingOpen(false)}
+          onFinish={() => setIsPublicWebsite(false)}
+        />
+      </>
+    );
+  }
+
+  // Render Authenticated SaaS Workspace
   return (
     <div className="flex min-h-screen bg-[#F7F9F6]">
-      {/* 1. Left Fixed Sidebar */}
+      {/* Dual-tier Authenticated Sidebar */}
       <Sidebar
         currentView={currentView}
         onNavigate={(view) => {
@@ -96,11 +144,12 @@ export default function App() {
           setCurrentView(view);
         }}
         reviewCount={pendingReviewCount}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        onViewWebsite={() => setIsPublicWebsite(true)}
       />
 
-      {/* 2. Main Content Container */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header */}
         <Header
           activePersona={activePersona}
           onPersonaChange={(p) => {
@@ -109,22 +158,33 @@ export default function App() {
             else if (p === "manager") setCurrentView("review");
             else setCurrentView("home");
           }}
-          onSearchClick={() => setCurrentView("library")}
+          onSearchClick={() => setIsCommandPaletteOpen(true)}
           onQuickSeed={handleQuickSeed}
         />
 
-        {/* Dynamic View Viewport */}
         <main className="flex-1 pb-12">
+          {/* 1. Personalized Employee Home ("Pick up where you left off" - Screen 4) */}
           {currentView === "home" && (
+            <PersonalizedEmployeeHome
+              records={records}
+              onSelectRecord={handleSelectRecord}
+              onNavigate={(v) => setCurrentView(v as any)}
+              onAskQuery={handleAskQuery}
+            />
+          )}
+
+          {/* 2. Executive Knowledge Pulse / Original Dashboard (Screen 1 & Image 2) */}
+          {currentView === "dashboard" && (
             <DashboardHome
               records={records}
-              onNavigate={setCurrentView}
+              onNavigate={(v) => setCurrentView(v as any)}
               onSelectRecord={handleSelectRecord}
               onAskQuery={handleAskQuery}
               onStartVoiceCapture={handleStartVoiceCapture}
             />
           )}
 
+          {/* 3. Ask Lore (AI Mentor with Citations - Screen 5) */}
           {currentView === "ask" && (
             <AskLoreView
               initialQuery={askQuery}
@@ -133,6 +193,7 @@ export default function App() {
             />
           )}
 
+          {/* 4. Knowledge Capture Studio (Voice, Docs, Meetings, Screen - Screen 6) */}
           {currentView === "capture" && (
             <CaptureView
               onCompleteCapture={handleCompleteCapture}
@@ -140,6 +201,7 @@ export default function App() {
             />
           )}
 
+          {/* 5. Knowledge Library Explorer (Screen 7) */}
           {currentView === "library" && (
             <KnowledgeLibraryView
               records={records}
@@ -148,30 +210,19 @@ export default function App() {
             />
           )}
 
-          {currentView === "detail" && selectedRecord && (
-            <KnowledgeDetailView
-              record={selectedRecord}
-              onBack={() => setCurrentView("library")}
-              onApproveRecord={handleApproveRecord}
-            />
-          )}
-
-          {currentView === "review" && (
-            <ReviewQueueView
-              records={records}
-              onApprove={handleApproveRecord}
-              onOpenRecord={handleSelectRecord}
-            />
-          )}
-
-          {currentView === "gaps" && (
-            <KnowledgeGapsView
-              onStartCaptureWithTopic={(topic, expert) => {
-                setCurrentView("capture");
+          {/* 6. Collections (Curated Workspaces - Section 6) */}
+          {currentView === "collections" && (
+            <CollectionsView
+              onSelectCollection={(title) => {
+                setCurrentView("library");
               }}
             />
           )}
 
+          {/* 7. Knowledge Graph (Interactive Node Relational Map - Screen 8) */}
+          {currentView === "graph" && <KnowledgeGraphView />}
+
+          {/* 8. People & Expertise (Expert Directory - Screen 9) */}
           {currentView === "team" && (
             <TeamView
               onScheduleInterview={(expert) => {
@@ -180,9 +231,57 @@ export default function App() {
             />
           )}
 
+          {/* 9. Review & Governance (Screen 10) */}
+          {currentView === "review" && (
+            <ReviewQueueView
+              records={records}
+              onApprove={handleApproveRecord}
+              onOpenRecord={handleSelectRecord}
+            />
+          )}
+
+          {/* 10. Knowledge Gaps Intelligence (Feature H) */}
+          {currentView === "gaps" && (
+            <KnowledgeGapsView
+              onStartCaptureWithTopic={(topic, expert) => {
+                setCurrentView("capture");
+              }}
+            />
+          )}
+
+          {/* 11. Integrations Marketplace (Screen 11) */}
+          {currentView === "integrations" && <IntegrationsView />}
+
+          {/* 12. Settings & Security */}
           {currentView === "settings" && <SettingsView />}
+
+          {/* 13. Knowledge Detail & Review (Screen 5) */}
+          {currentView === "detail" && selectedRecord && (
+            <KnowledgeDetailView
+              record={selectedRecord}
+              onBack={() => setCurrentView("library")}
+              onApproveRecord={handleApproveRecord}
+            />
+          )}
         </main>
       </div>
+
+      {/* Global Command Palette Modal (Screen 2) */}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onSelectAction={handlePaletteAction}
+      />
+
+      {/* Onboarding Flow Modal (Screen 3) */}
+      <OnboardingModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        onFinish={() => {
+          setIsOnboardingOpen(false);
+          setIsPublicWebsite(false);
+        }}
+      />
     </div>
   );
 }
